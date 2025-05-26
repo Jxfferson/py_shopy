@@ -1,60 +1,9 @@
 from .database import Base
-from sqlalchemy import Column, Integer, String, Date, Float, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Float, Boolean, Enum, ForeignKey, Time
 from sqlalchemy.orm import relationship
 
+#Tablas
 
-class Aprendiz(Base):
-    __tablename__ = "aprendiz"
-    id_Aprendiz = Column(Integer, 
-                primary_key=True)
-    nombre_Aprendiz = Column(String(50))
-    apellido_Aprendiz = Column(String(50))
-    email_Aprendiz = Column(String(60))
-        
-    clase = relationship("Clase",
-                        back_populates="aprendiz")
-    
-    
-class Categorias(Base):
-    __tablename__ = "categorias"
-    id_Categorias = Column(Integer,
-                           primary_key=True)
-    descripcion_Categoria = Column(String(100))
-    nombre_Categoria = Column(String(50))
-    
-    #Relacion uno a muchos
-    clase = relationship("Clase",
-                        back_populates="categorias")
-    
-
-class Experto(Base):
-    __tablename__ = "experto"
-    id_Experto = Column(Integer, 
-                primary_key=True)
-    nombre_Experto = Column(String(50))
-    apellido_Experto = Column(String(50))
-    email_Experto = Column(String(60))
-    
-class Clase(Base):
-    __tablename__ = "clase"
-    id_Clase = Column(Integer, 
-                primary_key=True)
-    titulo = Column(String(50))
-    descripcion = Column(String(200))
-    
-#Clave foranea
-
-    categoria_id = Column(Integer, 
-                          ForeignKey("categorias.id_Categorias"))
-    
-    aprendiz_id = Column(Integer, 
-                          ForeignKey("aprendiz.id_Aprendiz"))
-    
-#Relaciones
-    
-    aprendiz = relationship("Aprendiz",
-                        back_populates="roles")
-    
 
 class Rol(Base):
     __tablename__ = "Rol"
@@ -63,7 +12,7 @@ class Rol(Base):
     nombre_Rol = Column(String(50))
     estado_Rol = Column(Boolean)
     descripcion_Rol = Column(String(200))
-    
+     
 class Usuario(Base):
     __tablename__ = "usuario"
     id_Usuario = Column(Integer, 
@@ -73,33 +22,88 @@ class Usuario(Base):
     email_Usuario = Column(String(60))
     password_Usuario = Column(String(100))
     fecha_Creacion = Column(Date)
-    habilidades_Usuario = Column(String(200))
     trueques_Usuario = Column(Integer)
+    fecha_registro = Column(Date)
+    foto_perfil = Column(String(255), 
+                default='default.jpg')
+    descripcion_Usuario = Column(String(200))
     rol_UsuarioFK = Column(Integer,
                 ForeignKey("Rol.id_Rol"))
-    
-class Trueque(Base):
-    __tablename__ = "trueque"
-    id_Trueque = Column(Integer, 
+
+class Habilidades(Base):
+    __tablename__ = "habilidades"
+    id_Habilidades = Column(Integer, 
                 primary_key=True)
-    fecha_Trueque = Column(Date)
-    estado_Trueque = Column(Boolean)
-    descripcion_Trueque = Column(String(200))
-    id_UsuariosFK = Column(Integer,
-                ForeignKey("usuario.id_Usuario"))
+    nombre_Habilidades = Column(String(50))
+    descripcion_Habilidades = Column(String(200))
+    categoria_Habilidades = Column(String(50))
+    id_usuarioFK = Column(Integer,
+                ForeignKey("usuario.id_Usuario")) 
+    categoria_Habilidad = Column(Integer,
+                ForeignKey("categoria_habilidad.id_categoria"))
     
-class Feedback(Base):
-    _tablename__ ="feedback"
-    id_Feedback = Column(Integer, 
+class categoria_habilidad(Base):
+    __tablename__ = "categoria_habilidad"
+    id_categoria = Column(Integer,
+                          primary_key=True)
+    categoria = Column(String(200)) 
+    descripcion = Column(String(200)) 
+    estado = Column(Boolean)  
+    
+class Intercambios(Base):
+    __tablename__ = "intercambios"
+    id_Intercambios = Column(Integer, 
                 primary_key=True)
-    fecha_Feedback = Column(Date)
-    descripcion_Feedback = Column(String(200))
-    calificacion_Feedback = Column(Float)
-    id_TruequeFK = Column(Integer,
-                ForeignKey("trueque.id_Trueque"))
+    fecha_Intercambio = Column(Date)
+    estado_Intercambio = Column(Boolean)
+    descripcion_Intercambio = Column(String(200))
     id_UsuarioFK = Column(Integer,
-                ForeignKey("usuario.id_Usuario"))
+                ForeignKey("usuario.id_Usuario")) 
+    id_HabilidadesFK = Column(Integer, 
+                ForeignKey("habilidades.id_Habilidades"))    
+   
+class Curso(Base):
+    __tablename__ = "curso"
+    id_Curso = Column(Integer, 
+                      primary_key=True) 
+    nombre_Curso = Column(String(50))
+    descripcion_Curso = Column(String(200))
+    fecha_Curso = Column(Date)
+    estado_Curso = Column(Boolean) 
+    calificaciones = Column(Float)
+    id_UsuarioFK = Column(Integer,
+                ForeignKey("usuario.id_Usuario")) 
+    id_HabilidadesFK = Column(Integer, 
+                ForeignKey("habilidades.id_Habilidades")) 
+        
+            
+class sesiones(Base):
+    __tablename__ = "sesiones"
+    id_sesiones = Column(Integer, 
+                primary_key=True)
+    fecha_inicio = Column(Date)
+    hora_inicio = Column(Time) 
+    tematica = Column(String(200))
+    Estado = Column(Boolean) 
+    id_IntercambioFK = Column(Integer,
+                ForeignKey("intercambios.id_Intercambios"))
+    id_cursoFK = Column(Integer,    
+                ForeignKey("curso.id_Curso")) 
+
+class Materiales(Base):
+    __tablename__ = "materiales"
+    id_Materiales = Column(Integer, 
+                primary_key=True)
+    nombre_Materiales = Column(String(50))
+    descripcion_Materiales = Column(String(200))
+    tipo_Materiales = Column(Enum('documento','video','audio')) 
+    url_Materiales = Column(String(200)) 
+    fecha_Subida = Column(Date) 
+    id_IntercambioFK = Column(Integer,
+                ForeignKey("intercambios.id_Intercambios"))  
+    id_cursoFK = Column(Integer,
+                ForeignKey("curso.id_Curso")) 
     
-class Mensaje(Base):
-    __tablename__ = "mensaje"
+        
+
     

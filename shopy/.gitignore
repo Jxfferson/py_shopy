@@ -1,4 +1,0 @@
-/py_shoppy/*
-/migrations/*
-/db/__pycache__/*
-alembic.ini
